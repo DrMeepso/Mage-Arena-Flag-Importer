@@ -1,0 +1,64 @@
+name: Build and Release
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: windows-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: '1.21'
+    
+    - name: Get dependencies
+      run: go mod tidy
+    
+    - name: Build
+      run: go build .
+    
+    - name: Generate release tag
+      id: tag
+      run: |
+        echo "release_tag=v$(date +'%Y.%m.%d')-$(echo ${{ github.sha }} | cut -c1-7)" >> $GITHUB_OUTPUT
+      shell: bash
+    
+    - name: Create Release
+      if: github.ref == 'refs/heads/main'
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ steps.tag.outputs.release_tag }}
+        release_name: Flag Importer ${{ steps.tag.outputs.release_tag }}
+        body: |
+          Automatic release of Flag Importer
+          
+          ## Changes
+          - Built from commit ${{ github.sha }}
+          
+          ## How to Use
+          1. Download `flagimporter.exe`
+          2. Drag and drop a 100x66 PNG image onto the exe
+          3. Your MageArena flag will be updated!
+        draft: false
+        prerelease: false
+    
+    - name: Upload Release Asset
+      if: github.ref == 'refs/heads/main'
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./flagimporter.exe
+        asset_name: flagimporter.exe
+        asset_content_type: application/octet-stream
