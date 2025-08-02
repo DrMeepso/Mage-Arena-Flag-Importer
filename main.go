@@ -31,6 +31,7 @@ func main() {
 	if len(os.Args) < 2 {
 		fmt.Println("Drag and drop a PNG image onto the exe to set your ingame flag.")
 		println()
+		println("Or run the command with a PNG file as an argument:")
 		fmt.Println("Usage: flagimporter <image.png>")
 		fmt.Println("Or use --save to save the current flag image")
 
