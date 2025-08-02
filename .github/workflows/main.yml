@@ -22,7 +22,7 @@ jobs:
       run: go mod tidy
     
     - name: Build
-      run: go build -o flagimporter.exe main.go
+      run: go build .
     
     - name: Generate release tag
       id: tag
