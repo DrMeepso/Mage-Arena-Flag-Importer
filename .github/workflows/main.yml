@@ -39,16 +39,20 @@ jobs:
       with:
         tag_name: ${{ steps.tag.outputs.release_tag }}
         release_name: Flag Importer ${{ steps.tag.outputs.release_tag }}
-        body: |
-          Automatic release of Flag Importer
-          
+        body: |          
           ## Changes
           - Built from commit ${{ github.sha }}
+          `
+          ${{
+            github.event.head_commit.message
+          }}
+          `
           
           ## How to Use
-          1. Download `flagimporter.exe`
-          2. Drag and drop a 100x66 PNG image onto the exe
-          3. Your MageArena flag will be updated!
+            1. Download `flagimporter.exe`
+            2. Drag and drop a 100x66 PNG image onto the exe
+            3. In the flag editor, click "Load From Disk"
+            4. Done!
         draft: false
         prerelease: false
     

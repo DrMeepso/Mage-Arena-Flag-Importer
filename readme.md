@@ -6,7 +6,8 @@ A Windows utility that imports images as flags into MageArena.
 
 1. Create or find a image that's 100x66 pixels
 2. Either drag it onto the exe file or run the command
-3. Your flag will be updated in the game!
+3. In the flag editor, click "Load From Disk"
+4. Done!
 
 
 ## Usage
