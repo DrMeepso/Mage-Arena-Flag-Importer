@@ -116,6 +116,7 @@ func main() {
 		}
 
 		println("Your ingame flag has been updated! ")
+		key.Close()
 	}
 
 	// wait for user input before closing
