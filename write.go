@@ -3,8 +3,8 @@ package main
 import (
 	"fmt"
 	"image"
-	"image/color"
 	"math"
+	"sync"
 )
 
 type Color struct {
@@ -53,16 +53,21 @@ func write(img image.Image) (string, image.Image, error) {
 	// find the closest color for each pixel in the image
 	remappedImage := image.NewRGBA(img.Bounds())
 	uvImage := make([][]Vector2, img.Bounds().Dy())
+	var writeLock sync.Mutex
 	for i := range uvImage {
 		uvImage[i] = make([]Vector2, img.Bounds().Dx())
 	}
 	for y := 0; y < img.Bounds().Dy(); y++ {
 		for x := 0; x < img.Bounds().Dx(); x++ {
-			c := img.At(x, y)
-			r, g, b, _ := c.RGBA()
-			closestColor := findClosestColor(Color{R: uint8(r), G: uint8(g), B: uint8(b)}, colorMap)
-			uvImage[y][x] = colorMap[closestColor]
-			remappedImage.Set(x, y, color.RGBA{R: closestColor.R, G: closestColor.G, B: closestColor.B, A: 255})
+			go func() {
+				c := img.At(x, y)
+				r, g, b, _ := c.RGBA()
+				closestColor := findClosestColor(Color{R: uint8(r), G: uint8(g), B: uint8(b)}, colorMap)
+				writeLock.Lock()
+				uvImage[y][x] = colorMap[closestColor]
+				//remappedImage.Set(x, y, color.RGBA{R: closestColor.R, G: closestColor.G, B: closestColor.B, A: 255})
+				writeLock.Unlock()
+			}()
 		}
 	}
 
