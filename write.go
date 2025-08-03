@@ -54,11 +54,13 @@ func write(img image.Image) (string, image.Image, error) {
 	remappedImage := image.NewRGBA(img.Bounds())
 	uvImage := make([][]Vector2, img.Bounds().Dy())
 	var writeLock sync.Mutex
+	var wg sync.WaitGroup
 	for i := range uvImage {
 		uvImage[i] = make([]Vector2, img.Bounds().Dx())
 	}
 	for y := 0; y < img.Bounds().Dy(); y++ {
 		for x := 0; x < img.Bounds().Dx(); x++ {
+			wg.Add(1)
 			go func() {
 				c := img.At(x, y)
 				r, g, b, _ := c.RGBA()
@@ -67,9 +69,12 @@ func write(img image.Image) (string, image.Image, error) {
 				uvImage[y][x] = colorMap[closestColor]
 				//remappedImage.Set(x, y, color.RGBA{R: closestColor.R, G: closestColor.G, B: closestColor.B, A: 255})
 				writeLock.Unlock()
+				wg.Done()
 			}()
 		}
 	}
+
+	wg.Wait()
 
 	// create a image string from the UV coordinates
 	var uvString string
